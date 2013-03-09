@@ -13,6 +13,7 @@ var scoop_cmds =
 "test",    //[package]  [options] Runs package test on package in
 "install", //[package]  [options] Installs package located at
 "clean", //[package]  [options] Removes package build directory at
+"exit",
 "help";
 
 proc help() {
@@ -49,9 +50,17 @@ assert(parse_and_bind('tab: complete')==0);
 assert(parse_and_bind('set editing-mode vi')==0);
 
 //$ Main Loop
+println$ "readline completion example";
+println$ "Type help for help or hit <TAB> on empty line";
+println$ "CRTL-D or exit to quit";
 while (true) do
   match  readline("completion:>") with
-  |Some ?txt  => if not txt == "" do add_history(txt); done println$ "Entered command ' " + txt+"'";
+  |Some ?txt  => if not txt == "" do add_history(txt); done 
+    match txt.strip with
+    |"help" => help(); 
+    | "exit" => System::exit(0);
+    |_ => println$ "Entered command ' " + txt+"'";
+    endmatch;
   |None => goto quit; 
   endmatch;
 done
