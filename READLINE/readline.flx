@@ -1,0 +1,47 @@
+requires package "readline";
+
+class Readline {
+open C_hack;
+//$ ## Intialization Functions
+
+//$ Parse line as if it had been read from the inputrc file and perform any key bindings and 
+//$ variable assignments found (see section 1.3 Readline Init File).
+  gen parse_and_bind:string->int = "rl_parse_and_bind (strdup($1.c_str()))";
+
+//$ Read keybindings and variable assignments from filename (see section 1.3 Readline Init File).
+  gen read_init_file:string->int = "rl_read_init_file (const_cast<char *>(strdup($1.c_str())))";
+
+//$ ## Line Input Functionss
+//$ Read line of text with readline
+  gen readline_cstr:string->+char = "readline (const_cast<char *>(strdup($1.c_str())))";
+
+//$ Read line of text with readline, return a string
+  fun readline(prompt:string) =>
+    let ?line = readline_cstr(prompt) in
+      if isNULL(line) then None[string] else Some (string(line)) endif;
+
+//$ ## History functions
+   proc add_history:string = "add_history(const_cast<char *>(strdup($1.c_str())));";
+header """
+typedef char** (Callback_Proxy )(char*,int,int,void*);
+Callback_Proxy *proxy_callback;
+void* proxy_callback_data;
+  char **completion_entry_func_proxy(const char* text,int start,int end) {
+    if(proxy_callback_data) {
+      return (proxy_callback(const_cast<char *>(text),start,end,proxy_callback_data));
+    }
+     return NULL;
+  }
+ void set_completion_entry_func(Callback_Proxy cb,void * client_data) {
+    proxy_callback = cb;
+    proxy_callback_data = client_data;
+    rl_attempted_completion_function  = completion_entry_func_proxy;    
+   }
+"""; 
+  callback fun callback_proxy: +char*int*int*callback_proxy -> +(+char);
+   
+   typedef f_handler_t = +char*int*int -> +(+char);
+   typedef c_handler_t =        +char*int*int*address --> +(+char);
+   proc set_completion_entry_func: c_handler_t*f_handler_t = "set_completion_entry_func($1,$2);";
+   
+}

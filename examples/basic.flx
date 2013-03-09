@@ -1,0 +1,13 @@
+include "READLINE/readline";
+open Readline;
+
+assert(parse_and_bind('tab: complete')==0);
+assert(parse_and_bind('set editing-mode vi')==0);
+while (true) do
+  match  readline("basic:>") with
+  |Some ?txt  => if not txt == "" do add_history(txt); done println$ txt;
+  |None => goto quit; 
+  endmatch;
+done
+quit:>
+endl;
