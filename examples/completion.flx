@@ -1,0 +1,54 @@
+include "READLINE/readline";
+open Readline;
+open C_hack;
+var scoop_cmds = 
+"list",   //[installed] [options] Lists all packages on litterbox.
+"search",  //<package>  [options] Searches for package on litterbox
+"info",    //<package>  [options] Displays package info
+"refresh",  //          [options] Refreshes litterbox package directory cache
+"reinstall",   //       [options] Reinstalls all previously installed packages
+"get",     //<package> [build dir] [options] Pull package from litterbox
+"build",   //[package] [build dir] [options] Builds package in
+"test",    //[package]  [options] Runs package test on package in
+"install", //[package]  [options] Installs package located at
+"clean", //[package]  [options] Removes package build directory at
+"help";
+proc help() {
+  println$ "\nHELP\n--------------------"; 
+  for cmd in scoop_cmds do
+    println$ "  "+cmd;
+  done
+  endl;
+}
+
+fun scoop_completer(text:+char,state:int):+char = {
+  var text_s = str(text);
+  if state == 0 do
+    if not text_s == "" do
+      for cmd in scoop_cmds do
+        if (startswith cmd text_s) do
+          return cstr(cmd);
+        done
+      done
+    else
+      save_prompt();
+      help();
+      restore_prompt();
+      ignore(on_new_line());
+    done
+  done
+  return cast[(+char)](NULL);
+}
+
+set_completer(cast[c_handler_t](callback_proxy),scoop_completer);
+set_completer(cast[c_handler_t](callback_proxy),scoop_completer);
+assert(parse_and_bind('tab: complete')==0);
+assert(parse_and_bind('set editing-mode vi')==0);
+while (true) do
+  match  readline("completion:>") with
+  |Some ?txt  => if not txt == "" do add_history(txt); done println$ "Entered command ' " + txt+"'";
+  |None => goto quit; 
+  endmatch;
+done
+quit:>
+endl;
