@@ -89,6 +89,9 @@ gen expand_prompt:string->int = "rl_expand_prompt (cons_cast<char *>(strdup($1))
 gen set_prompt:string->int = "rl_set_prompt (const_cast<char *>(strdup($1)))";
 
 //$ Completion
+
+fun NO_MATCH: 1->+char = "(char *)NULL";
+
 header """
 typedef char* (Callback_Proxy )(char*,int,void*);
 Callback_Proxy *proxy_callback;

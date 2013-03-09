@@ -1,6 +1,7 @@
 include "READLINE/readline";
 open Readline;
 open C_hack;
+
 var scoop_cmds = 
 "list",   //[installed] [options] Lists all packages on litterbox.
 "search",  //<package>  [options] Searches for package on litterbox
@@ -13,6 +14,7 @@ var scoop_cmds =
 "install", //[package]  [options] Installs package located at
 "clean", //[package]  [options] Removes package build directory at
 "help";
+
 proc help() {
   println$ "\nHELP\n--------------------"; 
   for cmd in scoop_cmds do
@@ -37,13 +39,16 @@ fun scoop_completer(text:+char,state:int):+char = {
       ignore(on_new_line());
     done
   done
-  return cast[(+char)](NULL);
+  //$ Must return no match if no completion found
+  return NO_MATCH();
 }
 
-set_completer(cast[c_handler_t](callback_proxy),scoop_completer);
+//$ Initialize
 set_completer(cast[c_handler_t](callback_proxy),scoop_completer);
 assert(parse_and_bind('tab: complete')==0);
 assert(parse_and_bind('set editing-mode vi')==0);
+
+//$ Main Loop
 while (true) do
   match  readline("completion:>") with
   |Some ?txt  => if not txt == "" do add_history(txt); done println$ "Entered command ' " + txt+"'";
