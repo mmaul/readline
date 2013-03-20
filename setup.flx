@@ -9,7 +9,7 @@ instance PkgTool {
   proc build () {
     create_config("readline",list("readline/readline.h","readline/history.h"),
                   list("libreadline"+#Config::config.EXT_SHLIB),Empty[string],
-                  "-DHAVE_ISXDIGIT");
+                  list("-DHAVE_ISXDIGIT"));
     default_build();
   }
 }
