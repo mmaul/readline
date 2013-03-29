@@ -1,6 +1,6 @@
 include "std/felix/pkgtool";
 BUILD_LIKE = Lib;
- 
+
 open PkgTool;
 open Filename;
 
@@ -10,6 +10,10 @@ instance PkgTool {
     create_config("readline",list("readline/readline.h","readline/history.h"),
                   list("libreadline"+#Config::config.EXT_SHLIB),Empty[string],
                   list("-DHAVE_ISXDIGIT"));
+    run_test("C_check_readline_version.flx",true);
+    if HAS_TEST_FAILURES do
+      general_fail$ INDENT+"This package requires a version of readline 5.0 or greater";
+    done
     default_build();
   }
 }

@@ -1,0 +1,30 @@
+
+      requires package "readline";
+      const RL_READLINE_VERSION:int;
+      const cc:char = "(char)27";
+      var NC = cc + '[0m';
+      var green = cc+'[0;32m';
+      var red = cc + '[0;31m';
+      var yellow = cc + '[0;33m';
+      var line = yellow + "  " + "readline version >= 5" +":";
+      for var dot in 0 upto (64 - 34) do
+        line += ".";
+      done
+      print$ line;
+      if RL_READLINE_VERSION >= 0x500 do
+        println$ test_result_status(true);
+        System::exit(0);
+      else 
+        println$ test_result_status(false);
+        System::exit(0);
+      done
+  fun  NC_ (unit) => cc + '[0m'; 
+  fun  NC_(s:string) => NC_() + s;
+  fun green_(unit) => cc + '[0;32m';
+  fun green_(s:string) => green_() + s + NC_();
+  fun red_(unit) => cc + '[0;31m';
+  fun red_(s:string) => red_()+ s + NC_();
+  noinline  fun test_result_status(status:bool) =>
+    NC_("[") +
+    if status then green_(" OK ") else red_("FAIL") endif + 
+    NC_("]");
